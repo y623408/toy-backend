@@ -13,7 +13,12 @@ app.use(
   })
 );
 app.use("/user", userRoute);
-
+/*
+app.listen(
+  process.env.PORT,
+  console.log(`server listening to the port ${process.env.PORT}`)
+);
+*/
 /*
 app.use(
   cors({
@@ -22,5 +27,4 @@ app.use(
   })
 );*/
 // Export the express app for Vercel to use
-
 module.exports = app;
