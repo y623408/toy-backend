@@ -8,7 +8,7 @@ const app = express();
 app.use(bodyparser.json());
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: "https://hostel-frontend-delta.vercel.app",
     credentials: true,
   })
 );
