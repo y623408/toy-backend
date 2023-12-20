@@ -40,7 +40,7 @@ const issueSchema = new Schema({
     }
 });
 
-issueSchema.index({ "expireAt": 1 }, { expireAfterSeconds: 0 });
+//issueSchema.index({ "expireAt": 1 }, { expireAfterSeconds: 0 });
 
 const IssueModel = mongoose.model("issues", issueSchema);
 module.exports = IssueModel

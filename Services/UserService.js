@@ -1,27 +1,29 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const User = require("../Models/RegistrationModel");
+//const User = require("../Models/RegistrationModel");
+const User = require("../Models/UserModel");
 const Student = require("../Models/StudentModel");
 const Issue = require("../Models/IssueModel");
 
 //registration api
 const registrationService = async (req, res) => {
-  let { firstName, lastName, rollNo, password } = req.body;
+  let { username, password, phone, address } = req.body;
+
   try {
-    const existingUser = await User.findOne({ rollNo: rollNo });
+    const existingUser = await User.findOne({ phone: phone });
     if (existingUser) {
       res.json({
         status: 400,
-        message: "An account with this roll no already exists",
+        message: "An account with this Phone no. already exists",
       });
     } else {
       const salt = await bcrypt.genSalt(10);
       password = await bcrypt.hash(password, salt);
       const newUser = new User({
-        firstName,
-        lastName,
-        rollNo,
+        username,
         password,
+        phone,
+        address,
       });
       await newUser
         .save()
@@ -49,12 +51,15 @@ const registrationService = async (req, res) => {
 
 //login api
 const loginService = async (req, res) => {
-  let { rollNo, password } = req.body;
-  const existingUser = await User.findOne({ rollNo: rollNo });
+  let { phone, password } = req.body;
+  console.log(req.body);
+  const existingUser = await User.findOne({ phone: phone });
   if (!existingUser) {
+    console.log("--------");
+    console.log(existingUser);
     res.json({
       status: 400,
-      message: "User doesnt exist please Register",
+      message: "User doesnt exist, Please Register !",
     });
   } else {
     if (await bcrypt.compare(password, existingUser.password)) {
@@ -64,11 +69,11 @@ const loginService = async (req, res) => {
         },
         process.env.JWT_SECRET
       );
-
       res.json({
         status: 200,
         message: "Login Success",
         token: token,
+        data: existingUser,
       });
     } else {
       res.json({
@@ -79,6 +84,58 @@ const loginService = async (req, res) => {
   }
 };
 
+//get user details
+const userDetailService = async (req, res) => {
+  let { user_id } = req.body;
+  console.log(req.body);
+  const existingUser = await User.findOne({ _id: user_id });
+  if (!existingUser) {
+    console.log("--------");
+    console.log(existingUser);
+    res.json({
+      status: 400,
+      message: "User doesnt exist, Please Register !",
+    });
+  } else {
+    res.json({
+      existingUser
+    });
+  }
+};
+
+const getuserAddressService = async (req, res) => {
+  let { user_id } = req.body;
+  const existingUser = await User.findOne({ _id: user_id });
+  if (existingUser) {
+    res.json({
+      status: 200,
+      message: "Fetch successfull !",
+      data: existingUser,
+    });
+  }
+};
+
+const updateAddressService = async (req, res) => {
+  let { user_id, streetAddress, city, state, pincode } = req.body;
+  console.log(streetAddress);
+  console.log(city);
+  console.log(state);
+  console.log(pincode);
+  try {
+    const existingUser = await User.findOne({ _id: user_id });
+    existingUser.streetAddress = streetAddress;
+    existingUser.city = city;
+    existingUser.state = state;
+    existingUser.pincode = pincode;
+    existingUser.address =
+      streetAddress + ", " + city + ", " + state + " - " + pincode;
+
+    const result = await existingUser.save();
+    res.json(result);
+  } catch (er) {
+    res.json({ status: 400, message: er });
+  }
+};
 //userinert api
 const insertStudent = async (req, res) => {
   const { rollNo, student_name, student_year, student_room, student_email } =
@@ -217,14 +274,12 @@ const findAllIssues = async (req, res) => {
     .catch((error) => {
       res.json({ status: 400, message: error });
     });
-
 };
 
 module.exports = {
   registrationService,
   loginService,
-  insertStudent,
-  getUserList,
-  issueService,
-  findAllIssues,
+  getuserAddressService,
+  userDetailService,
+  updateAddressService,
 };
