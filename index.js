@@ -25,7 +25,6 @@ app.use(express.json({/* limit:'10mb' */}));
 //serve static files
 app.use('/', express.static(path.join(__dirname, '/public')));
 
-
 app.use('/', userRoute);
 /* 
 app.use('/register', require('./routes/register'));
@@ -48,7 +47,6 @@ app.all('*', (req, res) => {
         res.type('txt').send("404 Not Found");
     }
 });
-
 
 mongoose.connection.once('open', () => {
     console.log('Connected to MongoDB');
